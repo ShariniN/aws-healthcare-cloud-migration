@@ -71,6 +71,7 @@ resource "aws_security_group" "alb_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   egress {
+    #trivy:ignore:AVD-AWS-0104:Same reason as CKV_AWS_382 on app_sg: the ALB reaches app tasks and health checks, so egress stays open.
     description = "All outbound, to the app tier and health checks"
     from_port   = 0
     to_port     = 0
@@ -94,6 +95,7 @@ resource "aws_security_group" "app_sg" {
     security_groups = [aws_security_group.alb_sg.id]
   }
   egress {
+    #trivy:ignore:AVD-AWS-0104:Same reason as CKV_AWS_382: app tasks reach AWS APIs and external services through NAT.
     description = "All outbound, through NAT and the VPC endpoints"
     from_port   = 0
     to_port     = 0
@@ -117,6 +119,7 @@ resource "aws_security_group" "db_sg" {
     security_groups = [aws_security_group.app_sg.id]
   }
   egress {
+    #trivy:ignore:AVD-AWS-0104:Same reason as CKV_AWS_382 on db_sg: kept to match the console-built PoC. Production removes it.
     description = "All outbound, kept to match the console-built PoC"
     from_port   = 0
     to_port     = 0
